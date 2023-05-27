@@ -1,6 +1,8 @@
+import { forwardRef, useRef } from "react";
 import { Pressable, Text, View, StyleSheet, TextProps } from "react-native";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useFocus } from "./src/hooks";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,16 +35,20 @@ export function RootNavigator() {
   );
 }
 
-function WhiteText({ children, style }: TextProps) {
+const WhiteText = forwardRef<Text, TextProps>((props, ref) => {
+  const { children, style } = props;
   return (
-    <Text style={StyleSheet.flatten([{ color: "white" }, style])}>
+    <Text ref={ref} style={StyleSheet.flatten([{ color: "white" }, style])}>
       {children}
     </Text>
   );
-}
+});
 
 function HomeScreen() {
   const navigation = useNavigation();
+  const componentRef = useRef<Text>(null);
+  const { setFocus } = useFocus();
+
   return (
     <View
       style={{
@@ -63,6 +69,24 @@ function HomeScreen() {
           Go To Test Page
         </WhiteText>
       </Pressable>
+
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setFocus(componentRef.current)}
+      >
+        <WhiteText
+          style={{
+            marginTop: 20,
+            padding: 16,
+            backgroundColor: "#fff",
+            color: "black",
+          }}
+        >
+          Focus Text
+        </WhiteText>
+      </Pressable>
+
+      <WhiteText ref={componentRef}>Text goes here</WhiteText>
     </View>
   );
 }
